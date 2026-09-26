@@ -19,6 +19,11 @@ function Navigation() {
               JavaScript
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/classes" className="nav-link">
+              Classes
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
