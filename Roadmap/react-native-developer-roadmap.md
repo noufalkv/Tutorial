@@ -4,7 +4,39 @@
 >
 > The roadmap covers React Native, its ecosystem, and mobile development fundamentals in 2026.
 
-## 1. Prerequisites
+## 1. Introduction
+
+- [ ] **What is React Native?** — A framework for building real native iOS and Android apps with React. Your components render actual platform views (`UIView`, `android.view.View`), not a webview, so the result looks and feels native.
+  ```jsx
+  // This <Text> becomes a UILabel on iOS and a TextView on Android
+  <Text>Native, not HTML</Text>
+  ```
+- [ ] **Why use React Native?** — One codebase for both platforms, instant feedback via Fast Refresh, the React mental model and npm ecosystem, over-the-air JS updates, and an escape hatch to native code when you need it.
+  ```bash
+  npx create-expo-app MyApp   # one project, iOS + Android + web
+  ```
+- [ ] **How React Native works** — JavaScript runs in the Hermes engine and talks to native UI. The New Architecture (default since 0.76) replaces the old async bridge with JSI, letting JS call C++/native code directly and synchronously.
+  ```text
+  Your JSX  ->  React reconciler  ->  Fabric renderer (C++)  ->  native views
+  Your calls ->  TurboModules via JSI               ->  native APIs
+  ```
+- [ ] **React Native alternatives** — Know the trade-offs before you commit to a stack.
+  ```text
+  Flutter               Dart + own rendering engine; very consistent UI, separate ecosystem
+  Kotlin Multiplatform  share logic in Kotlin, build UI natively (or Compose Multiplatform)
+  Capacitor / Ionic     web app in a native shell; fastest for web teams, least native feel
+  .NET MAUI             C#/XAML, strong on Windows and enterprise
+  Native (Swift/Kotlin) best performance and platform fidelity, two codebases
+  ```
+- [ ] **When *not* to use React Native** — Heavy 3D/graphics work, deep OS integrations (widgets, watch apps, CarPlay), or a single-platform app built by a native team are usually better served natively.
+  ```text
+  Rule of thumb: UI-and-API-heavy product -> React Native
+                 GPU/OS-heavy product     -> native
+  ```
+
+---
+
+## 2. Prerequisites
 
 Before starting React Native, master the fundamentals:
 
@@ -251,7 +283,7 @@ Phones have limited CPU, memory, battery, and unreliable networks compared to de
 
 ---
 
-## 2. React Native Fundamentals
+## 3. React Native Fundamentals
 
 - [ ] **Why React Native** — One JavaScript/TypeScript codebase produces real native iOS and Android apps, with fast iteration and a huge ecosystem.
   ```jsx
@@ -292,6 +324,37 @@ Phones have limited CPU, memory, battery, and unreliable networks compared to de
   ```javascript
   // Edit a Text label and save: the app updates instantly.
   // Press 'r' in the Metro terminal to reload manually.
+  ```
+- [ ] **Metro bundler** — React Native's JavaScript bundler. It watches your files, resolves imports, transforms them with Babel and serves the bundle to the app over HTTP.
+  ```bash
+  npx react-native start --reset-cache   # clear the transform cache
+  ```
+  ```javascript
+  // metro.config.js
+  const { getDefaultConfig } = require('expo/metro-config');
+  const config = getDefaultConfig(__dirname);
+  config.resolver.sourceExts.push('svg');
+  module.exports = config;
+  ```
+- [ ] **create-expo-app** — The standard way to scaffold a project, with TypeScript and Expo Router wired up.
+  ```bash
+  npx create-expo-app@latest MyApp --template default
+  cd MyApp && npx expo start
+  ```
+- [ ] **Running on a real device** — A simulator can't test the camera, push notifications, biometrics or real performance. Test on hardware early.
+  ```bash
+  npx expo start                  # scan the QR code with Expo Go / dev client
+  npx expo run:ios --device       # bare build onto a connected iPhone
+  npx expo run:android --device   # bare build onto a connected Android
+  ```
+- [ ] **Expo Snack** — Browser-based playground that runs React Native without any local setup; ideal for sharing reproductions and trying snippets.
+  ```text
+  https://snack.expo.dev  -> edit, pick iOS/Android/Web, share the URL
+  ```
+- [ ] **Expo trade-offs** — Expo gives you prebuilt native modules, EAS Build and OTA updates. The cost is some indirection: custom native code needs a config plugin and a development build, and `expo-*` packages pin native versions.
+  ```bash
+  npx expo prebuild        # generate ios/ and android/ to edit native code
+  npx expo install --fix   # align package versions with your SDK
   ```
 
 ### Core Components
@@ -343,6 +406,53 @@ Phones have limited CPU, memory, battery, and unreliable networks compared to de
     <Text>I'm a modal</Text>
   </Modal>
   ```
+- [ ] **Pressable** — The modern, flexible press primitive: press states, long press and an enlarged hit area.
+  ```jsx
+  <Pressable
+    onPress={save}
+    onLongPress={showMenu}
+    hitSlop={8}
+    style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+  >
+    <Text>Save</Text>
+  </Pressable>
+  ```
+- [ ] **ImageBackground** — Renders children on top of an image, the equivalent of a CSS background image.
+  ```jsx
+  <ImageBackground source={{ uri }} style={{ flex: 1 }} resizeMode="cover">
+    <Text style={{ color: '#fff' }}>Over the image</Text>
+  </ImageBackground>
+  ```
+- [ ] **Switch** — A boolean on/off toggle rendered natively per platform.
+  ```jsx
+  const [on, setOn] = useState(false);
+  <Switch value={on} onValueChange={setOn} />
+  ```
+- [ ] **ActivityIndicator** — The platform spinner, for loading states.
+  ```jsx
+  {isLoading && <ActivityIndicator size="large" color="#2b78e4" />}
+  ```
+- [ ] **StatusBar** — Controls the clock/battery bar: text colour, background and visibility.
+  ```jsx
+  <StatusBar barStyle="light-content" backgroundColor="#111" translucent />
+  ```
+- [ ] **KeyboardAvoidingView** — Moves content out from under the on-screen keyboard; the behaviour differs per platform.
+  ```jsx
+  <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  >
+    <TextInput placeholder="Message" />
+  </KeyboardAvoidingView>
+  ```
+- [ ] **RefreshControl** — Adds pull-to-refresh to a `ScrollView` or `FlatList`.
+  ```jsx
+  <FlatList
+    data={items}
+    renderItem={renderRow}
+    refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refetch} />}
+  />
+  ```
 
 ### Basic Layout
 
@@ -371,7 +481,7 @@ const styles = StyleSheet.create({
 
 ---
 
-## 3. Styling
+## 4. Styling
 
 - [ ] **StyleSheet API** — The full API for creating and composing style objects; supports arrays to merge styles.
   ```jsx
@@ -456,7 +566,7 @@ export const ResponsiveView = () => {
 
 ---
 
-## 4. State Management and Hooks
+## 5. State Management and Hooks
 
 ### React Hooks
 - [ ] **useState** — Adds a piece of state to a component.
@@ -594,7 +704,7 @@ export const store = configureStore({
 
 ---
 
-## 5. Navigation
+## 6. Navigation
 
 ### React Navigation
 - [ ] **Stack Navigator** — Screens stack on top of each other, like pages with a back button.
@@ -691,9 +801,36 @@ export const RootNavigator = () => {
   app/profile/[id].tsx   -> /profile/42
   ```
 
+### Deep Linking
+
+- [ ] **URL schemes and universal links** — Let a URL open a specific screen in your app: a custom scheme (`myapp://`) plus verified https links (Universal Links on iOS, App Links on Android).
+  ```json
+  // app.json
+  { "expo": { "scheme": "myapp", "ios": { "associatedDomains": ["applinks:myapp.com"] } } }
+  ```
+- [ ] **Linking configuration (React Navigation)** — Map incoming paths onto your navigator tree.
+  ```jsx
+  const linking = {
+    prefixes: ['myapp://', 'https://myapp.com'],
+    config: { screens: { Profile: 'profile/:id', Settings: 'settings' } },
+  };
+  <NavigationContainer linking={linking}>{/* ... */}</NavigationContainer>
+  ```
+- [ ] **Handling links at runtime** — Read the URL that launched the app, and listen while it runs.
+  ```javascript
+  const initialUrl = await Linking.getInitialURL();
+  const sub = Linking.addEventListener('url', ({ url }) => route(url));
+  await Linking.openURL('tel:+15551234');   // also opens other apps
+  ```
+- [ ] **Testing deep links** — Fire links at a simulator or device from the CLI.
+  ```bash
+  npx uri-scheme open "myapp://profile/42" --ios
+  adb shell am start -W -a android.intent.action.VIEW -d "myapp://profile/42"
+  ```
+
 ---
 
-## 6. API Integration & Data Fetching
+## 7. API Integration & Data Fetching
 
 - [ ] **Fetch API** — Built-in function for HTTP requests.
   ```javascript
@@ -745,6 +882,29 @@ export const RootNavigator = () => {
     return config;
   });
   ```
+### Network Connectivity
+
+- [ ] **Connectivity status** — Detect whether the device is online and what kind of connection it has, so you can show offline UI instead of failing silently.
+  ```javascript
+  import NetInfo from '@react-native-community/netinfo';
+
+  const sub = NetInfo.addEventListener((state) => {
+    console.log(state.isConnected, state.type); // true 'wifi' | 'cellular' | 'none'
+  });
+  const { isInternetReachable } = await NetInfo.fetch();
+  ```
+- [ ] **Offline-first behaviour** — Cache responses, queue writes while offline and replay them on reconnect.
+  ```jsx
+  // TanStack Query pauses and resumes queries with connectivity
+  onlineManager.setEventListener((setOnline) =>
+    NetInfo.addEventListener((s) => setOnline(!!s.isConnected)),
+  );
+  ```
+- [ ] **Timeouts and retries** — Mobile networks drop out; always bound a request and back off between retries.
+  ```javascript
+  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+  ```
+
 
 ### Data Fetching Libraries
 
@@ -800,7 +960,7 @@ export const UsersList = () => {
 
 ---
 
-## 7. Lists and Optimization
+## 8. Lists and Optimization
 
 - [ ] **FlatList** — Virtualized list: only rows near the screen are rendered.
   ```jsx
@@ -874,7 +1034,7 @@ export const OptimizedList = () => {
 
 ---
 
-## 8. Forms and Validation
+## 9. Forms and Validation
 
 - [ ] **TextInput handling** — Keep the input value in state and update it on every change.
   ```jsx
@@ -972,7 +1132,7 @@ export const LoginForm = () => {
 
 ---
 
-## 9. Native Modules & APIs
+## 10. Native Modules & APIs
 
 - [ ] **Camera** — Take photos or record video, and scan barcodes.
   ```jsx
@@ -1010,6 +1170,47 @@ export const LoginForm = () => {
   const token = (await Notifications.getExpoPushTokenAsync()).data;
   // send token to your server
   ```
+### Storage Options
+
+- [ ] **AsyncStorage** — Unencrypted, asynchronous key-value store for small data such as settings and flags. Not for sensitive data.
+  ```javascript
+  await AsyncStorage.setItem('onboarded', 'true');
+  const value = await AsyncStorage.getItem('onboarded');
+  ```
+- [ ] **expo-secure-store** — Encrypted key-value storage backed by the iOS Keychain and Android Keystore. Use it for tokens and secrets.
+  ```javascript
+  await SecureStore.setItemAsync('refreshToken', token);
+  const token = await SecureStore.getItemAsync('refreshToken');
+  ```
+- [ ] **expo-file-system** — Read, write, move, delete and download files in the app's sandboxed directories.
+  ```javascript
+  const path = FileSystem.documentDirectory + 'notes.json';
+  await FileSystem.writeAsStringAsync(path, JSON.stringify(notes));
+  const { uri } = await FileSystem.downloadAsync(remoteUrl, FileSystem.cacheDirectory + 'img.png');
+  ```
+- [ ] **expo-sqlite** — A real on-device SQL database for relational or large data sets, with transactions.
+  ```javascript
+  const db = await SQLite.openDatabaseAsync('app.db');
+  await db.execAsync('CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY, title TEXT)');
+  await db.runAsync('INSERT INTO todos (title) VALUES (?)', 'Buy milk');
+  const rows = await db.getAllAsync('SELECT * FROM todos');
+  ```
+- [ ] **Other storage options** — Pick by shape of data and performance needs.
+  ```text
+  react-native-mmkv   synchronous, very fast key-value (JSI); drop-in AsyncStorage replacement
+  op-sqlite           fastest SQLite binding, supports encryption and sync
+  WatermelonDB        reactive, lazy-loading ORM over SQLite; built for 10k+ records
+  Realm / Atlas       object database with built-in device-to-cloud sync
+  react-native-keychain  native credential storage, alternative to SecureStore
+  ```
+- [ ] **Choosing a store** — A quick decision rule.
+  ```text
+  flags & settings       -> MMKV or AsyncStorage
+  tokens & credentials   -> SecureStore / Keychain
+  files, images, exports -> expo-file-system
+  relational / queryable -> expo-sqlite, op-sqlite, WatermelonDB
+  ```
+
 
 ### Popular Modules
 
@@ -1075,7 +1276,7 @@ export const useUser = () => {
 
 ---
 
-## 10. Authentication & Security
+## 11. Authentication & Security
 
 - [ ] **Login/logout flow** — Sign in, keep the user signed in, and clear everything on sign out.
   ```javascript
@@ -1171,7 +1372,7 @@ export const useAuth = () => {
 
 ---
 
-## 11. Testing
+## 12. Testing
 
 ### Unit Testing
 - [ ] **Jest** — The default test runner: runs tests, mocks modules and checks results.
@@ -1209,6 +1410,19 @@ export const useAuth = () => {
 - [ ] **Mock native modules** — Replace native code that doesn't exist in Jest.
   ```javascript
   jest.mock('expo-secure-store', () => ({ getItemAsync: jest.fn() }));
+  ```
+- [ ] **React Test Renderer** — Renders a component tree to plain JavaScript objects with no device involved. Testing Library is built on it; reach for it directly only for snapshot or tree-shape assertions.
+  ```javascript
+  import { create } from 'react-test-renderer';
+
+  const tree = create(<Profile name="Sam" />).toJSON();
+  expect(tree).toMatchSnapshot();
+  ```
+- [ ] **Testing hooks** — Render a hook in isolation and assert on its result across updates.
+  ```javascript
+  const { result } = renderHook(() => useCounter());
+  act(() => result.current.increment());
+  expect(result.current.count).toBe(1);
   ```
 
 ### E2E Testing
@@ -1248,7 +1462,7 @@ describe('Counter', () => {
 
 ---
 
-## 12. Performance Optimization
+## 13. Performance Optimization
 
 - [ ] **Rendering performance** — Avoid unnecessary re-renders and heavy work on the UI thread.
   ```jsx
@@ -1290,6 +1504,73 @@ describe('Counter', () => {
   ```jsx
   keyExtractor={(item) => item.id}
   ```
+- [ ] **Understand frame rates** — Mobile UI runs at 60fps (120fps on newer devices), so every frame has ~16ms. React Native has two threads to watch: the JS thread (your code) and the UI thread (native rendering). Open the Perf Monitor and find which one drops.
+  ```text
+  JS frame drops  -> too much work in JS: heavy renders, big loops, JSON parsing
+  UI frame drops  -> too many/too deep views, expensive shadows, large images
+  ```
+- [ ] **Common sources of slowness** — Know the usual suspects before you profile.
+  ```text
+  console.log left in release builds        animating layout props instead of transforms
+  re-rendering a whole list on each keystroke  unbatched setState in loops
+  ScrollView where a FlatList belongs      unoptimised/oversized remote images
+  inline arrow props to memoized children   running in dev mode and calling it slow
+  ```
+- [ ] **Measure release builds, not dev builds** — Dev mode adds validation, yellow-box warnings and no minification. Performance numbers from `__DEV__` are meaningless.
+  ```bash
+  npx expo run:ios --configuration Release
+  npx expo run:android --variant release
+  ```
+- [ ] **Optimising FlatList config** — The props that actually matter, and `getItemLayout` when rows are a fixed height.
+  ```jsx
+  <FlatList
+    data={items}
+    renderItem={renderRow}
+    keyExtractor={(i) => i.id}
+    initialNumToRender={10}      // just enough to fill one screen
+    maxToRenderPerBatch={10}     // rows rendered per batch while scrolling
+    windowSize={5}               // screens of content kept mounted
+    removeClippedSubviews        // detach off-screen views (Android)
+    getItemLayout={(_, index) => ({ length: 72, offset: 72 * index, index })}
+  />
+  ```
+- [ ] **FlashList** — Shopify's drop-in FlatList replacement that recycles views instead of unmounting them; much better for long or complex lists.
+  ```jsx
+  <FlashList data={items} renderItem={renderRow} estimatedItemSize={72} />
+  ```
+- [ ] **RAM bundles and inline requires** — Load each module the first time it is used instead of parsing the whole bundle at startup. Inline requires alone usually cut startup time noticeably.
+  ```javascript
+  // metro.config.js
+  module.exports = {
+    transformer: {
+      getTransformOptions: async () => ({
+        transform: { inlineRequires: true },
+      }),
+    },
+  };
+  ```
+- [ ] **Profiling** — Find the real hot spot rather than guessing.
+  ```bash
+  # Hermes CPU sampling profile -> open in Chrome DevTools / Perfetto
+  # Dev Menu > Start/Stop Sampling Profiler, then:
+  npx react-native profile-hermes ./profiles
+  ```
+  ```text
+  React DevTools Profiler  which components re-render and why
+  Perf Monitor             live JS/UI fps and view counts
+  Xcode Instruments        native CPU, memory, allocations (iOS)
+  Android Studio Profiler  CPU, memory, energy (Android)
+  ```
+- [ ] **Speeding up builds** — Slow builds cost more time than slow apps. Cache dependencies and avoid rebuilding native code you did not change.
+  ```bash
+  npx expo start                      # JS-only changes need no rebuild
+  eas build --platform ios --local    # reuse the local cache
+  ```
+  ```text
+  ccache for iOS native builds        Gradle configuration cache + build cache
+  build only the ABI you test on      keep a dev client instead of rebuilding per change
+  EAS Build remote cache              avoid `expo prebuild --clean` unless necessary
+  ```
 
 ```typescript
 import { useMemo, useCallback } from 'react';
@@ -1322,7 +1603,7 @@ export const OptimizedComponent = ({ items }: { items: Item[] }) => {
 
 ---
 
-## 13. Debugging
+## 14. Debugging
 
 - [ ] **React Native Debugger** — Legacy standalone debugging app; React Native DevTools is the modern built-in replacement.
   ```javascript
@@ -1358,6 +1639,45 @@ export const OptimizedComponent = ({ items }: { items: Item[] }) => {
     render() { return this.state.hasError ? <Text>Oops</Text> : this.props.children; }
   }
   ```
+- [ ] **In-app Developer Menu** — The entry point to every on-device debugging tool: reload, DevTools, element inspector, Perf Monitor and the sampling profiler.
+  ```text
+  iOS simulator      Cmd + D          Android emulator  Cmd/Ctrl + M
+  Physical device    shake it         Expo              press 'm' in the terminal
+  Any device         adb shell input keyevent 82   (Android)
+  ```
+- [ ] **Fast Refresh** — Edits appear in about a second while component state is preserved. It is on by default; a full reload happens when you edit a module with no React component, and a syntax error shows a LogBox overlay until fixed.
+  ```javascript
+  // Forcing a remount is sometimes what you want:
+  // @refresh reset
+  ```
+- [ ] **LogBox** — The overlay that shows warnings and errors in development: yellow for warnings, red for fatals, with a symbolicated stack trace you can tap into.
+  ```javascript
+  import { LogBox } from 'react-native';
+
+  LogBox.ignoreLogs(['Require cycle:']);  // silence a known, harmless warning
+  LogBox.ignoreAllLogs(true);             // only for demos/screenshots
+  ```
+- [ ] **Source maps** — Release stack traces point at minified bundle offsets. Upload source maps so crash reports show your original files and line numbers.
+  ```bash
+  npx react-native bundle --platform ios --dev false \
+    --entry-file index.js --bundle-output main.jsbundle \
+    --sourcemap-output main.jsbundle.map
+  ```
+  ```bash
+  # Expo + Sentry uploads them automatically on each EAS build
+  npx sentry-expo upload-sourcemaps dist
+  ```
+- [ ] **Debugging native crashes** — A crash with no JS stack is native. Read the platform logs.
+  ```bash
+  npx react-native log-ios        # or open the Xcode console
+  npx react-native log-android    # or: adb logcat *:E
+  ```
+- [ ] **Crash and error reporting** — Capture what happens on real users' devices, not just yours.
+  ```javascript
+  import * as Sentry from '@sentry/react-native';
+
+  Sentry.init({ dsn: process.env.EXPO_PUBLIC_SENTRY_DSN, tracesSampleRate: 0.2 });
+  ```
 
 ```typescript
 import { useEffect } from 'react';
@@ -1392,7 +1712,7 @@ class ErrorBoundary extends React.Component {
 
 ---
 
-## 14. Platform-Specific Development
+## 15. Platform-Specific Development
 
 - [ ] **iOS-specific features** — Features that exist only on iOS, e.g. Face ID, Apple Pay, Live Activities and haptics.
   ```javascript
@@ -1426,6 +1746,26 @@ class ErrorBoundary extends React.Component {
   npm install react-native-permissions
   cd ios && pod install
   ```
+- [ ] **Platform-specific file extensions** — Metro picks the right file per platform automatically, which keeps branching out of your components.
+  ```text
+  Button.ios.tsx      used on iOS
+  Button.android.tsx  used on Android
+  Button.native.tsx   used on iOS + Android (not web)
+  Button.web.tsx      used on web
+  Button.tsx          fallback
+  ```
+  ```jsx
+  import { Button } from './Button';   // no extension: Metro resolves it
+  ```
+- [ ] **react-native-web** — Renders React Native components to DOM elements so the same code runs in a browser. Expo wires it up for you.
+  ```bash
+  npx expo install react-native-web react-dom
+  npx expo start --web
+  ```
+  ```jsx
+  // Guard anything that has no web equivalent
+  if (Platform.OS !== 'web') await Haptics.impactAsync();
+  ```
 
 ```typescript
 import { Platform, View, Text, StyleSheet } from 'react-native';
@@ -1454,7 +1794,7 @@ export const PlatformAwareComponent = () => {
 
 ---
 
-## 15. Build and Deployment
+## 16. Build and Deployment
 
 ### Development
 - [ ] **Expo Go** — App for running Expo projects on a phone instantly by scanning a QR code.
@@ -1516,6 +1856,51 @@ export const PlatformAwareComponent = () => {
   ```bash
   eas update --branch production --message "Fix login bug"
   ```
+### Publishing to the Stores
+
+- [ ] **Apple App Store** — Prepare the listing and metadata in App Store Connect, then ship through TestFlight before public release.
+  ```bash
+  eas build --platform ios --profile production
+  eas submit --platform ios --latest
+  ```
+  ```text
+  Apple Developer Program membership ($99/yr)
+  App icon 1024x1024, screenshots for each required device size
+  Privacy policy URL + App Privacy ("data nutrition label") answers
+  Privacy manifest (PrivacyInfo.xcprivacy) declaring required-reason APIs
+  Encryption / export compliance answers
+  Age rating, category, keywords, support URL
+  TestFlight: internal testers instantly, external testers after a review
+  Review typically ~24-48h; rejections are common on 4.2 (minimum functionality)
+  and 5.1.1 (asking for data you don't need)
+  ```
+- [ ] **Google Play Store** — Upload an AAB (APKs are no longer accepted for new apps) and move it through the testing tracks.
+  ```bash
+  eas build --platform android --profile production
+  eas submit --platform android --latest
+  ```
+  ```text
+  Play Console developer account ($25 one-time) + identity verification
+  Android App Bundle (.aab), signed via Play App Signing
+  Data safety form, privacy policy, target API level requirements
+  Content rating questionnaire, ads declaration
+  Tracks: internal -> closed -> open -> production (staged rollout %)
+  New personal developer accounts need a closed test before production
+  ```
+- [ ] **Store assets and metadata** — The same set is needed twice, so generate it once and reuse.
+  ```text
+  icon (1024px), adaptive icon (Android), splash screen
+  5-8 screenshots per platform, feature graphic 1024x500 (Android)
+  short + full description, what's-new text, localisations
+  ```
+- [ ] **Release checklist** — Run through this before every submission.
+  ```text
+  version + build number bumped          release build tested on a real device
+  API pointing at production             source maps uploaded to crash reporting
+  console logs / debug flags removed     permissions have clear usage strings
+  deep links verified                    rollback plan (EAS Update channel) ready
+  ```
+
 
 ### Build Tools & Services
 
@@ -1568,7 +1953,7 @@ cd android
 
 ---
 
-## 16. Advanced Topics
+## 17. Advanced Topics
 
 - [ ] **Custom native modules** — Write Swift/Kotlin code and call it from JavaScript when no library exists.
   ```javascript
@@ -1603,6 +1988,64 @@ cd android
   ```bash
   npx expo start --web
   ```
+### The New Architecture
+
+- [ ] **New Architecture overview** — Default since React Native 0.76. The async JSON bridge is gone; JS and native share memory through JSI, which makes native calls synchronous and rendering concurrent-safe.
+  ```text
+  Old: JS  --JSON over the bridge-->  native   (async, serialised, batched)
+  New: JS  --JSI (shared C++ memory)-->  native   (sync, typed, direct)
+  ```
+- [ ] **Fabric (the renderer)** — The C++ rendering system. It builds an immutable shadow tree, supports React 18/19 concurrent features and Suspense, and allows synchronous layout measurement.
+  ```jsx
+  // Fabric is what makes these work correctly in RN
+  <Suspense fallback={<ActivityIndicator />}>
+    <Profile />
+  </Suspense>
+  ```
+- [ ] **TurboModules** — Native modules with a typed spec, loaded lazily and called directly over JSI instead of through the bridge.
+  ```typescript
+  // NativeCalculator.ts — the spec Codegen reads
+  import type { TurboModule } from 'react-native';
+  import { TurboModuleRegistry } from 'react-native';
+
+  export interface Spec extends TurboModule {
+    add(a: number, b: number): number;   // synchronous, no Promise needed
+  }
+  export default TurboModuleRegistry.getEnforcing<Spec>('Calculator');
+  ```
+- [ ] **Codegen** — Generates the C++/Obj-C/Java glue from your TypeScript specs at build time, so JS and native types can't drift apart.
+  ```json
+  // package.json
+  { "codegenConfig": { "name": "AppSpecs", "type": "all", "jsSrcsDir": "specs" } }
+  ```
+- [ ] **Bridgeless mode** — The final step: the app boots with no bridge at all. Anything still calling `NativeModules` directly or relying on bridge internals must be migrated.
+  ```javascript
+  // Check what your app is actually running
+  global.nativeFabricUIManager   // defined when Fabric is on
+  global.RN$Bridgeless           // true in bridgeless mode
+  ```
+- [ ] **Interop layer and migration** — Old-architecture libraries keep working through the interop layer, but check your dependencies before migrating.
+  ```bash
+  npx @react-native-community/cli doctor
+  # https://reactnative.directory  -> filter by "New Architecture" support
+  ```
+- [ ] **Expo Modules API** — The friendliest way to write native code today: Swift and Kotlin DSLs, no Codegen boilerplate, works with Expo config plugins.
+  ```bash
+  npx create-expo-module my-module
+  ```
+  ```swift
+  public class MyModule: Module {
+    public func definition() -> ModuleDefinition {
+      Name("MyModule")
+      Function("greet") { (name: String) in "Hello, \(name)!" }
+    }
+  }
+  ```
+- [ ] **Nitro Modules** — A third-party alternative to TurboModules with faster, lower-overhead JSI bindings; used by libraries like `react-native-nitro-sqlite`.
+  ```bash
+  npm install react-native-nitro-modules
+  ```
+
 
 ### Animation Libraries
 
@@ -1651,7 +2094,7 @@ export const AnimatedButton = () => {
 
 ---
 
-## 17. Backend Integration
+## 18. Backend Integration
 
 - [ ] **REST APIs** — Resource-based HTTP APIs: URLs are resources and HTTP methods are actions.
   ```text
@@ -1709,7 +2152,7 @@ export const ChatScreen = () => {
 
 ---
 
-## 18. Code Quality & Best Practices
+## 19. Code Quality & Best Practices
 
 - [ ] **ESLint setup** — Finds bugs and enforces code rules.
   ```bash
@@ -1767,7 +2210,7 @@ src/
 
 ---
 
-## 19. Accessibility
+## 20. Accessibility
 
 - [ ] **accessible labels** — Give every interactive element a description a screen reader can read.
   ```jsx
@@ -1819,7 +2262,7 @@ export const AccessibleButton = () => {
 
 ---
 
-## 20. React Native Ecosystem
+## 21. React Native Ecosystem
 
 Essential tools and libraries:
 
@@ -1876,7 +2319,7 @@ Essential tools and libraries:
 
 ---
 
-## 21. Expo Framework
+## 22. Expo Framework
 
 Learn about Expo for managed app development:
 
@@ -1937,7 +2380,7 @@ export const useDeviceFeatures = () => {
 
 ---
 
-## 22. Monorepo & Workspaces
+## 23. Monorepo & Workspaces
 
 - [ ] **Monorepo setup** — Keep multiple apps and packages in one repository.
   ```text
@@ -1966,7 +2409,7 @@ export const useDeviceFeatures = () => {
 
 ---
 
-## 23. CI/CD & Automation
+## 24. CI/CD & Automation
 
 - [ ] **GitHub Actions** — CI/CD that runs tests and builds on every push or pull request.
   ```yaml
@@ -2019,7 +2462,7 @@ jobs:
 
 ---
 
-## 24. Useful Resources
+## 25. Useful Resources
 
 - [ ] **React Native docs** — Official guides and API reference at reactnative.dev.
   *Example:* Look up: `FlatList` props, `Platform` API, New Architecture guide.
@@ -2108,6 +2551,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 | Area | Status |
 |---|---|
+| Introduction & Alternatives | ⬜ |
 | JavaScript | ⬜ |
 | TypeScript | ⬜ |
 | React Basics | ⬜ |
@@ -2122,8 +2566,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 | Testing | ⬜ |
 | Performance | ⬜ |
 | Debugging | ⬜ |
+| Platform-Specific Code | ⬜ |
+| Accessibility | ⬜ |
 | Deployment | ⬜ |
 | Advanced Topics | ⬜ |
+| New Architecture | ⬜ |
+| Publishing to Stores | ⬜ |
 
 ---
 
@@ -2170,9 +2618,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 # Reference
 
 - React Native official documentation: https://reactnative.dev/
+- React Native developer roadmap: https://roadmap.sh/react-native
 - Expo documentation: https://docs.expo.dev/
 - React Navigation: https://reactnavigation.org/
 - React Native Community: https://github.com/react-native-community
 - OpenBase (Find Libraries): https://openbase.com/
+- React Native Directory (library support matrix): https://reactnative.directory/
+- New Architecture guide: https://reactnative.dev/architecture/landing-page
+- Expo Snack (online playground): https://snack.expo.dev/
 
 > Note: This roadmap is based on industry standards and best practices for React Native development in 2026. The mobile development landscape evolves constantly, so continuous learning is essential.
