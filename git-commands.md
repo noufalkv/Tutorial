@@ -26,6 +26,20 @@
 
 ## History
 - `git log --oneline --graph` shows compact history.
+- `git log --oneline -10` shows the last 10 commits in compact form.
+- `git log --oneline --graph --all` shows the graph for all branches.
+- `git log -p -n 3` shows the diffs of the last 3 commits.
+- `git log --stat` shows the files changed in each commit.
+- `git log --author="Name"` filters commits by author.
+- `git log --since="2 weeks ago"` shows commits after a date. Use `--until` for the other end.
+- `git log --grep="keyword"` searches commit messages.
+- `git log -S"text"` finds commits that added or removed that text.
+- `git log -- <path>` shows the history of a file or folder.
+- `git log --follow <file>` follows a file across renames.
+- `git log <branch1>..<branch2>` shows commits in branch2 that are not in branch1.
+- `git log --pretty=format:"%h %an %ad %s" --date=short` prints a custom format.
+- `git log --merges` shows only merge commits. `--no-merges` hides them.
+- `git reflog` shows where HEAD has been, which helps recover lost commits.
 - `git show <commit>` shows one commit.
 - `git blame <file>` shows who changed each line.
 
