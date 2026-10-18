@@ -40,5 +40,53 @@
 ## Stash and rebase
 - `git stash` shelves uncommitted changes. `git stash pop` restores them.
 - `git rebase <branch>` replays your commits on top of another branch.
+- `git rebase -i HEAD~3` lets you squash, reword, reorder or drop the last 3 commits.
+- `git rebase --continue`, `--skip` and `--abort` control a rebase that stopped on a conflict.
 - `git cherry-pick <commit>` applies a single commit to the current branch.
 - `git tag <name>` marks a commit, for example a release.
+
+## Rebase example
+You branched `feature` off `main`, then `main` got new commits:
+
+```
+Before:
+          A---B---C   feature
+         /
+    D---E---F---G     main
+```
+
+Replay your feature commits on top of the latest `main`:
+
+```bash
+git switch feature
+git rebase main
+```
+
+```
+After:
+                  A'--B'--C'   feature
+                 /
+    D---E---F---G              main
+```
+
+If a conflict stops the rebase:
+
+```bash
+# fix the conflicted files, then
+git add <file>
+git rebase --continue      # or: git rebase --abort to cancel
+```
+
+Then update the remote. The history was rewritten, so a plain push is rejected:
+
+```bash
+git push --force-with-lease
+```
+
+Avoid rebasing commits that other people have already pulled.
+
+### Interactive rebase: squash the last 3 commits
+```bash
+git rebase -i HEAD~3
+```
+In the editor, keep `pick` on the first commit and change the others to `squash` (or `s`), then save and write the combined commit message.
