@@ -39,6 +39,15 @@
 
 ## Stash and rebase
 - `git stash` shelves uncommitted changes. `git stash pop` restores them.
+- `git stash push -m "message"` stashes with a description.
+- `git stash -u` also stashes untracked files.
+- `git stash list` lists all stashes.
+- `git stash show -p stash@{0}` shows the diff of a stash.
+- `git stash apply stash@{0}` restores a stash and keeps it in the list.
+- `git stash pop stash@{1}` restores a specific stash and removes it.
+- `git stash branch <name>` creates a branch from a stash and applies it.
+- `git stash drop stash@{0}` deletes one stash.
+- `git stash clear` deletes all stashes. It's destructive.
 - `git rebase <branch>` replays your commits on top of another branch.
 - `git cherry-pick <commit>` applies a single commit to the current branch.
 - `git tag <name>` marks a commit, for example a release.
