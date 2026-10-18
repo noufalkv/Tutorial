@@ -50,6 +50,21 @@
 - `git revert <commit>` adds a new commit that undoes an earlier one. This is safe for shared branches.
 - `git reset --soft HEAD~1` undoes the last commit and keeps its changes staged.
 - `git reset --hard <commit>` discards all changes back to that commit. It's destructive.
+- `git reset --mixed HEAD~1` undoes the last commit and keeps its changes unstaged. This is the default mode of `git reset`.
+- `git reset <file>` unstages a file (older form of `git restore --staged`).
+- `git restore --source=<commit> <file>` restores a file to how it was in that commit.
+- `git checkout -- <file>` discards unstaged changes to a file (older form of `git restore`).
+- `git clean -n` previews untracked files that would be removed.
+- `git clean -fd` deletes untracked files and folders. It's destructive.
+- `git revert -n <commit>` applies the undo to the working tree without committing, so you can combine several reverts.
+- `git revert -m 1 <merge-commit>` reverts a merge commit, keeping the first parent's side.
+- `git commit --amend --no-edit` adds staged changes to the last commit without changing its message.
+- `git reflog` lists where HEAD has been. Use it to find a commit lost after a reset.
+- `git reset --hard <reflog-hash>` or `git branch <name> <reflog-hash>` recovers that lost commit.
+- `git merge --abort` cancels a merge that has conflicts.
+- `git cherry-pick --abort` cancels a cherry-pick in progress.
+- `git rebase --abort` cancels a rebase in progress.
+- `git checkout <commit> -- <file>` brings back a file from an older commit.
 
 ## Stash and rebase
 - `git stash` shelves uncommitted changes. `git stash pop` restores them.
