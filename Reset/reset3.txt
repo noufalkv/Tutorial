@@ -1,0 +1,2 @@
+reset3
+git reset 4 
